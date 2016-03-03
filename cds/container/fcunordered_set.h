@@ -28,8 +28,8 @@
     OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.     
 */
 
-#ifndef CDSLIB_CONTAINER_FCQUEUE_H
-#define CDSLIB_CONTAINER_FCQUEUE_H
+#ifndef CDSLIB_CONTAINER_FCUNORDEREDSET_H
+#define CDSLIB_CONTAINER_FCUNORDEREDSET_H
 
 #include <cds/algo/flat_combining.h>
 #include <cds/algo/elimination_opt.h>
@@ -37,44 +37,37 @@
 
 namespace cds { namespace container {
 
-    /// FCQueue related definitions
+    /// FCUnorderedSet related definitions
     /** @ingroup cds_nonintrusive_helper
     */
-    namespace fcset {
+    namespace fcunordered_set {
 
-        /// FCQueue internal statistics
+        /// FCUnorderedSet internal statistics
         template <typename Counter = cds::atomicity::event_counter >
         struct stat: public cds::algo::flat_combining::stat<Counter>
         {
-            typedef cds::algo::flat_combining::stat<Counter>    flat_combining_stat; ///< Flat-combining statistics
-            typedef typename flat_combining_stat::counter_type  counter_type;        ///< Counter type
+            using flat_combining_stat = cds::algo::flat_combining::stat<Counter>; ///< Flat-combining statistics
+            using counter_type 		  = flat_combining_stat::counter_type;        ///< Counter type
 
-            counter_type    m_nEnqueue     ;   ///< Count of enqueue operations
-            counter_type    m_nEnqMove     ;   ///< Count of enqueue operations with move semantics
-            counter_type    m_nDequeue     ;   ///< Count of success dequeue operations
-            counter_type    m_nFailedDeq   ;   ///< Count of failed dequeue operations (pop from empty queue)
-            counter_type    m_nCollided    ;   ///< How many pairs of enqueue/dequeue were collided, if elimination is enabled
+            counter_type    m_nInsert     ;   ///< Count of Insert operations
+            counter_type    m_nErase      ;   ///< Count of Erase operations
 
             //@cond
-            void    onEnqueue()               { ++m_nEnqueue; }
-            void    onEnqMove()               { ++m_nEnqMove; }
-            void    onDequeue( bool bFailed ) { if ( bFailed ) ++m_nFailedDeq; else ++m_nDequeue;  }
-            void    onCollide()               { ++m_nCollided; }
+            void onInsert(){ ++m_nInsert; }
+            void onErase (){ ++m_nErase;  }
             //@endcond
         };
 
-        /// FCQueue dummy statistics, no overhead
+        /// FCUnorderedSet dummy statistics, no overhead
         struct empty_stat: public cds::algo::flat_combining::empty_stat
         {
             //@cond
-            void    onEnqueue()     {}
-            void    onEnqMove()     {}
-            void    onDequeue(bool) {}
-            void    onCollide()     {}
-            //@endcond
+        	void onInsert(){}
+			void onErase (){}
+			//@endcond
         };
 
-        /// FCQueue type traits
+        /// FCUnorderedSet type traits
         struct traits: public cds::algo::flat_combining::traits
         {
             typedef empty_stat      stat;   ///< Internal statistics
@@ -87,12 +80,12 @@ namespace cds { namespace container {
             - \p opt::lock_type - mutex type, default is \p cds::sync::spin
             - \p opt::back_off - back-off strategy, defalt is \p cds::backoff::delay_of<2>
             - \p opt::allocator - allocator type, default is \ref CDS_DEFAULT_ALLOCATOR
-            - \p opt::stat - internal statistics, possible type: \p fcqueue::stat, \p fcqueue::empty_stat (the default)
+            - \p opt::stat - internal statistics, possible type: \p fcunordered_set::stat, \p fcunordered_set::empty_stat (the default)
             - \p opt::memory_model - C++ memory ordering model.
                 List of all available memory ordering see \p opt::memory_model.
                 Default is \p cds::opt::v:relaxed_ordering
             - \p opt::enable_elimination - enable/disable operation \ref cds_elimination_description "elimination"
-                By default, the elimination is disabled. For queue, the elimination is possible if the queue
+                By default, the elimination is disabled. For unordered_set, the elimination is possible if the unordered_set
                 is empty.
         */
         template <typename... Options>
@@ -107,14 +100,14 @@ namespace cds { namespace container {
 #   endif
         };
 
-    } // namespace fcqueue
+    } // namespace fcunordered_set
 
 
 	template <typename T,
 		class Hash = std::hash<T>,
 		class KeyEqual = std::equal_to<T>,
 	    class Set = std::unordered_set<T, Hash, KeyEqual>,
-	    class Traits = fcset::traits,
+	    class Traits = fcunordered_set::traits,
 	    template <class, class>  class WaitStrategy = cds::algo::flat_combining::WaitBakkOffStrategy
 	>
 	class FCUnorderedSet
@@ -132,7 +125,7 @@ namespace cds { namespace container {
 
 	protected:
 		//@cond
-		/// Queue operation IDs
+		/// unordered_set operation IDs
 		enum fc_operation {
 			op_insert = cds::algo::flat_combining::req_Operation,
 			op_erase,
@@ -143,8 +136,8 @@ namespace cds { namespace container {
 		struct fc_record : public cds::algo::flat_combining::publication_record
 		{
 			union {
-				value_type const *  pValEnq;  ///< Value to enqueue
-				value_type *        pValDeq;  ///< Dequeue destination
+				value_type const *  pValInsert;  ///< Value to insert
+				value_type *        pValErase;  ///< Value to erase
 			};
 			bool            bEmpty; ///< \p true if the unordered_set is empty
 		};
@@ -160,11 +153,11 @@ namespace cds { namespace container {
 		//@endcond
 
 	public:
-		/// Initializes empty queue object
+		/// Initializes empty unordered_set object
 		FCUnorderedSet()
 		{}
 
-		/// Initializes empty queue object and gives flat combining parameters
+		/// Initializes empty unordered_set object and gives flat combining parameters
 		FCUnorderedSet(
 			unsigned int nCompactFactor     ///< Flat combining: publication list compacting factor
 			, unsigned int nCombinePassCount ///< Flat combining: number of combining passes for combiner thread
@@ -172,7 +165,7 @@ namespace cds { namespace container {
 			: m_FlatCombining(nCompactFactor, nCombinePassCount)
 		{}
 
-		/// Inserts a new element at the set
+		/// Inserts a new element at the unordered_set
 		/**
 		The content of the new element initialized to a copy of \p val.
 
@@ -181,7 +174,7 @@ namespace cds { namespace container {
 		bool insert(value_type const& val)
 		{
 			fc_record * pRec = m_FlatCombining.acquire_record();
-			pRec->pValEnq = &val;
+			pRec->pValInsert = &val;
 
 			if (c_bEliminationEnabled)
 				m_FlatCombining.batch_combine(op_insert, pRec, *this);
@@ -190,18 +183,18 @@ namespace cds { namespace container {
 
 			assert(pRec->is_done());
 			m_FlatCombining.release_record(pRec);
-			//m_FlatCombining.internal_statistics().onEnqueue();
+			m_FlatCombining.internal_statistics().onInsert();
 			return true;
 		}
 
-		/// Removes the next element from the queue
+		/// Removes the element from the unordered_set
 		/**
-		\p val takes a copy of the element
+		\p val value of the elements to remove
 		*/
-		bool dequeue(value_type& val)
+		bool erase(value_type& val)
 		{
 			fc_record * pRec = m_FlatCombining.acquire_record();
-			pRec->pValDeq = &val;
+			pRec->pValErase = &val;
 
 			if (c_bEliminationEnabled)
 				m_FlatCombining.batch_combine(op_erase, pRec, *this);
@@ -211,11 +204,11 @@ namespace cds { namespace container {
 			assert(pRec->is_done());
 			m_FlatCombining.release_record(pRec);
 
-//			m_FlatCombining.internal_statistics().onDequeue(pRec->bEmpty);
+			m_FlatCombining.internal_statistics().onErase();
 			return !pRec->bEmpty;
 		}
 
-		/// Clears the queue
+		/// Clears the unordered_set
 		void clear()
 		{
 			fc_record * pRec = m_FlatCombining.acquire_record();
@@ -229,9 +222,9 @@ namespace cds { namespace container {
 			m_FlatCombining.release_record(pRec);
 		}
 
-		/// Returns the number of elements in the queue.
+		/// Returns the number of elements in the unordered_set.
 		/**
-		Note that <tt>size() == 0</tt> is not mean that the queue is empty because
+		Note that <tt>size() == 0</tt> is not mean that the unordered_set is empty because
 		combining record can be in process.
 		To check emptiness use \ref empty function.
 		*/
@@ -240,7 +233,7 @@ namespace cds { namespace container {
 			return m_Set.size();
 		}
 
-		/// Checks if the queue is empty
+		/// Checks if the unordered_set is empty
 		/**
 		If the combining is in process the function waits while combining done.
 		*/
@@ -262,7 +255,7 @@ namespace cds { namespace container {
 		/**
 		The function is called by \ref cds::algo::flat_combining::kernel "flat combining kernel"
 		object if the current thread becomes a combiner. Invocation of the function means that
-		the queue should perform an action recorded in \p pRec.
+		the unordered_set should perform an action recorded in \p pRec.
 		*/
 		void fc_apply(fc_record * pRec)
 		{
@@ -270,17 +263,16 @@ namespace cds { namespace container {
 
 			switch (pRec->op()) {
 			case op_insert:
-				assert(pRec->pValEnq);
-				m_Set.insert(*(pRec->pValEnq));
+				assert(pRec->pValInsert);
+				m_Set.insert(*(pRec->pValInsert));
 				break;
 			case op_erase:
-				assert(pRec->pValDeq);
+				assert(pRec->pValErase);
 				pRec->bEmpty = m_Set.empty();
-				m_Set.erase(*(pRec->pValEnq));
+				m_Set.erase(*(pRec->pValInsert));
 				break;
 			case op_clear:
-				while (!m_Set.empty())
-					m_Set.pop();
+				m_Set.clear();
 				break;
 			default:
 				assert(false);
@@ -293,4 +285,4 @@ namespace cds { namespace container {
 
 }} // namespace cds::container
 
-#endif // #ifndef CDSLIB_CONTAINER_FCQUEUE_H
+#endif // #ifndef CDSLIB_CONTAINER_FCUNORDEREDSET_H
