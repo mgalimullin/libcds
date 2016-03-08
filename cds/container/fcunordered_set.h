@@ -47,14 +47,16 @@ namespace cds { namespace container {
         struct stat: public cds::algo::flat_combining::stat<Counter>
         {
             using flat_combining_stat = cds::algo::flat_combining::stat<Counter>; ///< Flat-combining statistics
-            using counter_type 		  = flat_combining_stat::counter_type;        ///< Counter type
+            using counter_type        = typename flat_combining_stat::counter_type;        ///< Counter type
 
             counter_type    m_nInsert     ;   ///< Count of Insert operations
             counter_type    m_nErase      ;   ///< Count of Erase operations
+            counter_type    m_nFind       ;   ///< Count of Find operations
 
             //@cond
             void onInsert(){ ++m_nInsert; }
             void onErase (){ ++m_nErase;  }
+            void onFind  (){ ++m_nFind;   }
             //@endcond
         };
 
@@ -62,9 +64,10 @@ namespace cds { namespace container {
         struct empty_stat: public cds::algo::flat_combining::empty_stat
         {
             //@cond
-        	void onInsert(){}
-			void onErase (){}
-			//@endcond
+            void onInsert(){}
+            void onErase (){}
+            void onFind  (){}
+            //@endcond
         };
 
         /// FCUnorderedSet type traits
@@ -103,185 +106,210 @@ namespace cds { namespace container {
     } // namespace fcunordered_set
 
 
-	template <typename T,
-		class Hash = std::hash<T>,
-		class KeyEqual = std::equal_to<T>,
-	    class Set = std::unordered_set<T, Hash, KeyEqual>,
-	    class Traits = fcunordered_set::traits,
-	    template <class, class>  class WaitStrategy = cds::algo::flat_combining::WaitBakkOffStrategy
-	>
-	class FCUnorderedSet
+    template <typename T,
+        template <class, class>  class WaitStrategy = cds::algo::flat_combining::WaitBakkOffStrategy,
+        class Hash = std::hash<T>,
+        class KeyEqual = std::equal_to<T>,
+        class Set = std::unordered_set<T, Hash, KeyEqual>,
+        class Traits = fcunordered_set::traits
+    >
+    class FCUnorderedSet
 #ifndef CDS_DOXYGEN_INVOKED
-		: public cds::algo::flat_combining::container
+        : public cds::algo::flat_combining::container
 #endif
-	{
-	public:
-		using value_type = T;     ///< Value type
-		using set_type = Set;     ///< Sequential map class
-		using traits = Traits;    ///< Map type traits
+    {
+    public:
+        using value_type = T;     ///< Value type
+        using set_type = Set;     ///< Sequential map class
+        using traits = Traits;    ///< Map type traits
 
-		using stat = typename traits::stat  ;   ///< Internal statistics type
-		static CDS_CONSTEXPR const bool c_bEliminationEnabled = traits::enable_elimination; ///< \p true if elimination is enabled
+        using stat = typename traits::stat  ;   ///< Internal statistics type
+        static CDS_CONSTEXPR const bool c_bEliminationEnabled = traits::enable_elimination; ///< \p true if elimination is enabled
 
-	protected:
-		//@cond
-		/// unordered_set operation IDs
-		enum fc_operation {
-			op_insert = cds::algo::flat_combining::req_Operation,
-			op_erase,
-			op_clear
-		};
+    protected:
+        //@cond
+        /// unordered_set operation IDs
+        enum fc_operation {
+            op_insert = cds::algo::flat_combining::req_Operation,
+            op_erase,
+            op_find,
+            op_clear
+        };
 
-		/// Flat combining publication list record
-		struct fc_record : public cds::algo::flat_combining::publication_record
-		{
-			union {
-				value_type const *  pValInsert;  ///< Value to insert
-				value_type *        pValErase;  ///< Value to erase
-			};
-			bool            bEmpty; ///< \p true if the unordered_set is empty
-		};
-		//@endcond
+        /// Flat combining publication list record
+        struct fc_record : public cds::algo::flat_combining::publication_record
+        {
+            union {
+                value_type const *  pValInsert;  ///< Value to insert
+                value_type const *  pValErase;  ///< Value to erase
+                value_type const *  pValFind;    ///< Flag to find
+            };
+            bool            bEmpty; ///< \p true if the unordered_set is empty
+            bool 			bFindSuccess;
+        };
+        //@endcond
 
-		/// Flat combining kernel
-		using fc_kernel = cds::algo::flat_combining::kernel< fc_record, traits, WaitStrategy >;
+        /// Flat combining kernel
+        using fc_kernel = cds::algo::flat_combining::kernel< fc_record, traits, WaitStrategy >;
 
-	protected:
-		//@cond
-		fc_kernel m_FlatCombining;
-		set_type  m_Set;
-		//@endcond
+    protected:
+        //@cond
+        fc_kernel m_FlatCombining;
+        set_type  m_Set;
+        //@endcond
 
-	public:
-		/// Initializes empty unordered_set object
-		FCUnorderedSet()
-		{}
+    public:
+        /// Initializes empty unordered_set object
+        FCUnorderedSet()
+        {}
 
-		/// Initializes empty unordered_set object and gives flat combining parameters
-		FCUnorderedSet(
-			unsigned int nCompactFactor     ///< Flat combining: publication list compacting factor
-			, unsigned int nCombinePassCount ///< Flat combining: number of combining passes for combiner thread
-			)
-			: m_FlatCombining(nCompactFactor, nCombinePassCount)
-		{}
+        /// Initializes empty unordered_set object and gives flat combining parameters
+        FCUnorderedSet(
+            unsigned int nCompactFactor     ///< Flat combining: publication list compacting factor
+            , unsigned int nCombinePassCount ///< Flat combining: number of combining passes for combiner thread
+            )
+            : m_FlatCombining(nCompactFactor, nCombinePassCount)
+        {}
 
-		/// Inserts a new element at the unordered_set
-		/**
-		The content of the new element initialized to a copy of \p val.
+        /// Inserts a new element at the unordered_set
+        /**
+        The content of the new element initialized to a copy of \p val.
 
-		The function always returns \p true
-		*/
-		bool insert(value_type const& val)
-		{
-			fc_record * pRec = m_FlatCombining.acquire_record();
-			pRec->pValInsert = &val;
+        The function always returns \p true
+        */
+        bool insert(value_type const& val)
+        {
+            fc_record * pRec = m_FlatCombining.acquire_record();
+            pRec->pValInsert = &val;
 
-			if (c_bEliminationEnabled)
-				m_FlatCombining.batch_combine(op_insert, pRec, *this);
-			else
-				m_FlatCombining.combine(op_insert, pRec, *this);
+            if (c_bEliminationEnabled)
+                m_FlatCombining.batch_combine(op_insert, pRec, *this);
+            else
+                m_FlatCombining.combine(op_insert, pRec, *this);
 
-			assert(pRec->is_done());
-			m_FlatCombining.release_record(pRec);
-			m_FlatCombining.internal_statistics().onInsert();
-			return true;
-		}
+            assert(pRec->is_done());
+            m_FlatCombining.release_record(pRec);
+            m_FlatCombining.internal_statistics().onInsert();
+            return true;
+        }
 
-		/// Removes the element from the unordered_set
-		/**
-		\p val value of the elements to remove
-		*/
-		bool erase(value_type& val)
-		{
-			fc_record * pRec = m_FlatCombining.acquire_record();
-			pRec->pValErase = &val;
+        /// Removes the element from the unordered_set
+        /**
+        \p val value of the elements to remove
+        */
+        bool erase(value_type const& val)
+        {
+            fc_record * pRec = m_FlatCombining.acquire_record();
+            pRec->pValErase = &val;
 
-			if (c_bEliminationEnabled)
-				m_FlatCombining.batch_combine(op_erase, pRec, *this);
-			else
-				m_FlatCombining.combine(op_erase, pRec, *this);
+            if (c_bEliminationEnabled)
+                m_FlatCombining.batch_combine(op_erase, pRec, *this);
+            else
+                m_FlatCombining.combine(op_erase, pRec, *this);
 
-			assert(pRec->is_done());
-			m_FlatCombining.release_record(pRec);
+            assert(pRec->is_done());
+            m_FlatCombining.release_record(pRec);
 
-			m_FlatCombining.internal_statistics().onErase();
-			return !pRec->bEmpty;
-		}
+            m_FlatCombining.internal_statistics().onErase();
+            return !pRec->bEmpty;
+        }
 
-		/// Clears the unordered_set
-		void clear()
-		{
-			fc_record * pRec = m_FlatCombining.acquire_record();
+        bool find(value_type const& val)
+        {
+            fc_record * pRec = m_FlatCombining.acquire_record();
+            pRec->pValFind = &val;
 
-			if (c_bEliminationEnabled)
-				m_FlatCombining.batch_combine(op_clear, pRec, *this);
-			else
-				m_FlatCombining.combine(op_clear, pRec, *this);
+            if (c_bEliminationEnabled)
+                m_FlatCombining.batch_combine(op_find, pRec, *this);
+            else
+                m_FlatCombining.combine(op_find, pRec, *this);
 
-			assert(pRec->is_done());
-			m_FlatCombining.release_record(pRec);
-		}
+            assert(pRec->is_done());
+            m_FlatCombining.release_record(pRec);
 
-		/// Returns the number of elements in the unordered_set.
-		/**
-		Note that <tt>size() == 0</tt> is not mean that the unordered_set is empty because
-		combining record can be in process.
-		To check emptiness use \ref empty function.
-		*/
-		size_t size() const
-		{
-			return m_Set.size();
-		}
+            m_FlatCombining.internal_statistics().onFind();
+            return pRec->bFindSuccess && !pRec->bEmpty;
+        }
 
-		/// Checks if the unordered_set is empty
-		/**
-		If the combining is in process the function waits while combining done.
-		*/
-		bool empty() const
-		{
-			m_FlatCombining.wait_while_combining();
-			return m_Set.empty();
-		}
+        /// Clears the unordered_set
+        void clear()
+        {
+            fc_record * pRec = m_FlatCombining.acquire_record();
 
-		/// Internal statistics
-		stat const& statistics() const
-		{
-			return m_FlatCombining.statistics();
-		}
+            if (c_bEliminationEnabled)
+                m_FlatCombining.batch_combine(op_clear, pRec, *this);
+            else
+                m_FlatCombining.combine(op_clear, pRec, *this);
 
-	public: // flat combining cooperation, not for direct use!
-		//@cond
-		/// Flat combining supporting function. Do not call it directly!
-		/**
-		The function is called by \ref cds::algo::flat_combining::kernel "flat combining kernel"
-		object if the current thread becomes a combiner. Invocation of the function means that
-		the unordered_set should perform an action recorded in \p pRec.
-		*/
-		void fc_apply(fc_record * pRec)
-		{
-			assert(pRec);
+            assert(pRec->is_done());
+            m_FlatCombining.release_record(pRec);
+        }
 
-			switch (pRec->op()) {
-			case op_insert:
-				assert(pRec->pValInsert);
-				m_Set.insert(*(pRec->pValInsert));
-				break;
-			case op_erase:
-				assert(pRec->pValErase);
-				pRec->bEmpty = m_Set.empty();
-				m_Set.erase(*(pRec->pValInsert));
-				break;
-			case op_clear:
-				m_Set.clear();
-				break;
-			default:
-				assert(false);
-				break;
-			}
-		}
+        /// Returns the number of elements in the unordered_set.
+        /**
+        Note that <tt>size() == 0</tt> is not mean that the unordered_set is empty because
+        combining record can be in process.
+        To check emptiness use \ref empty function.
+        */
+        size_t size() const
+        {
+            return m_Set.size();
+        }
 
-		//@endcond
-	};
+        /// Checks if the unordered_set is empty
+        /**
+        If the combining is in process the function waits while combining done.
+        */
+        bool empty() const
+        {
+            m_FlatCombining.wait_while_combining();
+            return m_Set.empty();
+        }
+
+        /// Internal statistics
+        stat const& statistics() const
+        {
+            return m_FlatCombining.statistics();
+        }
+
+    public: // flat combining cooperation, not for direct use!
+        //@cond
+        /// Flat combining supporting function. Do not call it directly!
+        /**
+        The function is called by \ref cds::algo::flat_combining::kernel "flat combining kernel"
+        object if the current thread becomes a combiner. Invocation of the function means that
+        the unordered_set should perform an action recorded in \p pRec.
+        */
+        void fc_apply(fc_record * pRec)
+        {
+            assert(pRec);
+
+            switch (pRec->op()) {
+            case op_insert:
+                assert(pRec->pValInsert);
+                m_Set.insert(*(pRec->pValInsert));
+                break;
+            case op_erase:
+                assert(pRec->pValErase);
+                pRec->bEmpty = m_Set.empty();
+                m_Set.erase(*(pRec->pValErase));
+                break;
+            case op_find:
+                assert(pRec->pValFind);
+                pRec->bEmpty = m_Set.empty();
+                pRec->bFindSuccess = m_Set.find(*(pRec->pValFind)) != m_Set.end();
+                break;
+            case op_clear:
+                m_Set.clear();
+                break;
+            default:
+                assert(false);
+                break;
+            }
+        }
+
+        //@endcond
+    };
 
 }} // namespace cds::container
 

@@ -125,7 +125,7 @@ namespace set2 {
                     size_t n = nRand / nNormalize;
                     switch ( pAct[i] ) {
                     case do_find:
-                        if ( rMap.contains( n ))
+                        if ( rMap.find( n ))
                             ++m_nFindSuccess;
                         else
                             ++m_nFindFailed;
@@ -164,7 +164,7 @@ namespace set2 {
                     pInitArr[i] = i * 2 + 1;
                 shuffle( pInitArr, pEnd );
                 for ( size_t * p = pInitArr; p < pEnd; ++p )
-                    testSet.insert( typename Set::value_type( *p, *p ) );
+                    testSet.insert( typename Set::value_type( *p ) );
                 delete [] pInitArr;
             }
 
@@ -247,26 +247,28 @@ namespace set2 {
         void setUpParams( const CppUnitMini::TestCfg& cfg );
 
 #   include "set2/set_defs.h"
-        CDSUNIT_DECLARE_MichaelSet
-        CDSUNIT_DECLARE_SplitList
-        CDSUNIT_DECLARE_StripedSet
-        CDSUNIT_DECLARE_RefinableSet
-        CDSUNIT_DECLARE_CuckooSet
-        CDSUNIT_DECLARE_SkipListSet
-        CDSUNIT_DECLARE_EllenBinTreeSet
-        CDSUNIT_DECLARE_FeldmanHashSet
-        CDSUNIT_DECLARE_StdSet
+        CDSUNIT_DECLARE_FCUnorderedSet
+//        CDSUNIT_DECLARE_MichaelSet
+//        CDSUNIT_DECLARE_SplitList
+//        CDSUNIT_DECLARE_StripedSet
+//        CDSUNIT_DECLARE_RefinableSet
+//        CDSUNIT_DECLARE_CuckooSet
+//        CDSUNIT_DECLARE_SkipListSet
+//        CDSUNIT_DECLARE_EllenBinTreeSet
+//        CDSUNIT_DECLARE_FeldmanHashSet
+//        CDSUNIT_DECLARE_StdSet
 
         CPPUNIT_TEST_SUITE_(Set_InsDelFind, "Map_InsDelFind")
-            CDSUNIT_TEST_MichaelSet
-            CDSUNIT_TEST_SplitList
-            CDSUNIT_TEST_SkipListSet
-            CDSUNIT_TEST_FeldmanHashSet
-            CDSUNIT_TEST_EllenBinTreeSet
-            CDSUNIT_TEST_StripedSet
-            CDSUNIT_TEST_RefinableSet
-            CDSUNIT_TEST_CuckooSet
-            CDSUNIT_TEST_StdSet
+        	CDSUNIT_TEST_FCUnorderedSet
+//            CDSUNIT_TEST_MichaelSet
+//            CDSUNIT_TEST_SplitList
+//            CDSUNIT_TEST_SkipListSet
+//            CDSUNIT_TEST_FeldmanHashSet
+//            CDSUNIT_TEST_EllenBinTreeSet
+//            CDSUNIT_TEST_StripedSet
+//            CDSUNIT_TEST_RefinableSet
+//            CDSUNIT_TEST_CuckooSet
+//            CDSUNIT_TEST_StdSet
         CPPUNIT_TEST_SUITE_END();
 
     };

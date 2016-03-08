@@ -28,6 +28,15 @@
     OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.     
 */
 
+//********************************************************************
+// FCUnorderdSet
+#define CDSUNIT_DECLARE_FCUnorderedSet  \
+    TEST_CASE(tag_FCUnorderedSet, FCUnorderedSet_Int_BackOffStat)
+#define CDSUNIT_TEST_FCUnorderedSet  \
+    CPPUNIT_TEST(FCUnorderedSet_Int_BackOffStat)
+
+//********************************************************************
+// StdSet
 #define CDSUNIT_DECLARE_StdSet \
     TEST_CASE( tag_StdSet, StdSet_Spin) \
     TEST_CASE( tag_StdSet, StdSet_Mutex) \
@@ -37,6 +46,8 @@
     CPPUNIT_TEST(StdSet_Spin) \
     CPPUNIT_TEST(StdSet_Mutex) \
     CPPUNIT_TEST(StdHashSet_Spin)
+
+
 
 //********************************************************************
 // MichaelHashSet
@@ -65,7 +76,6 @@
 #   define CDSUNIT_DECLARE_MichaelSet_RCU_signal
 #   define CDSUNIT_TEST_MichaelSet_RCU_signal
 #endif
-
 
 #define CDSUNIT_DECLARE_MichaelSet  \
     TEST_CASE(tag_MichaelHashSet, MichaelSet_HP_cmp_stdAlloc) \
