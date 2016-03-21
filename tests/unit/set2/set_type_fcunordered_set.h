@@ -37,10 +37,33 @@
 namespace set2 {
 
 
-	template <typename T>
-    class FCUnorderedSet : public cc::FCUnorderedSet< T >
+#define array_size  10000
+        struct HeavyValue {
+            int    nNo;
+            static int pop_buff[array_size];
+
+            HeavyValue() : nNo(0) {}
+            HeavyValue(int n) : nNo(n) {}
+
+            HeavyValue(const HeavyValue &object):nNo(object.nNo){
+                for (int i = 0; i < array_size; ++i)
+                    this->pop_buff[i] = (int)std::sqrt(object.pop_buff[i]);
+            }
+            int getNo() const { return  nNo; }
+
+            bool operator<( const HeavyValue& other){
+            	return nNo < other.nNo;
+            }
+
+        };
+        int HeavyValue::pop_buff[]= {};
+#undef array_size
+
+	template <typename T,
+			  template <class, class>  class WaitStrategy>
+    class FCUnorderedSet : public cc::FCUnorderedSet< T,  WaitStrategy>
     {
-        typedef cc::FCUnorderedSet< T > base_class;
+        typedef cc::FCUnorderedSet< T, WaitStrategy > base_class;
     	public:
         template <class Config>
         FCUnorderedSet( Config const& cfg )
@@ -65,7 +88,11 @@ namespace set2 {
             using hash 		 = typename base_class::hash;
 
             // ***************************************************************************
-            using FCUnorderedSet_Int_BackOffStat = FCUnorderedSet<int>;
+            using FCUnorderedSet_Int_BackOff = FCUnorderedSet<int, cds::algo::flat_combining::WaitBakkOffStrategy>;
+            using FCUnorderedSet_Int_Bare 	 = FCUnorderedSet<int, cds::algo::flat_combining::BareWaitStrategy>;
+            using FCUnorderedSet_Int_MMMCV 	 = FCUnorderedSet<int, cds::algo::flat_combining::WaitStrategyMultMutexMultCondVar>;
+            using FCUnorderedSet_Int_OMOCV 	 = FCUnorderedSet<int, cds::algo::flat_combining::WaitOneMutexOneCondVarStrategy>;
+
         };
 
 

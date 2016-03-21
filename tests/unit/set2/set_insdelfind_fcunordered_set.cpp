@@ -36,5 +36,8 @@
 #include "set2/set_defs.h"
 
 namespace set2 {
-	CDSUNIT_DECLARE_FCUnorderedSet
+	CDSUNIT_DECLARE_FCUnorderedSet1
+	CDSUNIT_DECLARE_FCUnorderedSet2
+	CDSUNIT_DECLARE_FCUnorderedSet3
+	CDSUNIT_DECLARE_FCUnorderedSet4
 } // namespace set2

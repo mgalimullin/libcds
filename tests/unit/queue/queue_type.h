@@ -400,7 +400,7 @@ namespace queue {
 
 
 		typedef cds::container::FCQueue< Value, std::queue<Value>,
-      traits_FCQueue_elimination_stat, cds::algo::flat_combining::BareWaitStartegy > FCQueue_deque;
+      traits_FCQueue_elimination_stat, cds::algo::flat_combining::BareWaitStrategy > FCQueue_deque;
 		typedef cds::container::FCQueue< Value, std::queue<Value>,
       traits_FCQueue_elimination_stat > FCQueue_backof;
 		typedef cds::container::FCQueue< Value, std::queue<Value>,

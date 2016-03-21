@@ -25,7 +25,7 @@ namespace cds {  namespace algo {  namespace flat_combining {
     };
 
     template<typename UserPublicationRecord, typename Traits>
-    struct BareWaitStartegy
+    struct BareWaitStrategy
     {
         struct ExtendedPublicationRecord: public UserPublicationRecord
         {
@@ -38,7 +38,7 @@ namespace cds {  namespace algo {  namespace flat_combining {
     };
     //===================================================================
     template<typename UserPublicationRecord, typename Traits>
-    struct WaitStartegyMultMutexMultCondVar
+    struct WaitStrategyMultMutexMultCondVar
     {
         struct ExtendedPublicationRecord: public UserPublicationRecord
         {

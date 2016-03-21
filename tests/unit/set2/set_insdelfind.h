@@ -247,7 +247,10 @@ namespace set2 {
         void setUpParams( const CppUnitMini::TestCfg& cfg );
 
 #   include "set2/set_defs.h"
-        CDSUNIT_DECLARE_FCUnorderedSet
+        CDSUNIT_DECLARE_FCUnorderedSet1
+        CDSUNIT_DECLARE_FCUnorderedSet2
+        CDSUNIT_DECLARE_FCUnorderedSet3
+        CDSUNIT_DECLARE_FCUnorderedSet4
 //        CDSUNIT_DECLARE_MichaelSet
 //        CDSUNIT_DECLARE_SplitList
 //        CDSUNIT_DECLARE_StripedSet
@@ -258,8 +261,11 @@ namespace set2 {
 //        CDSUNIT_DECLARE_FeldmanHashSet
 //        CDSUNIT_DECLARE_StdSet
 
-        CPPUNIT_TEST_SUITE_(Set_InsDelFind, "Map_InsDelFind")
-        	CDSUNIT_TEST_FCUnorderedSet
+        CPPUNIT_TEST_SUITE_(Set_InsDelFind, "Set_InsDelFind")
+        	CDSUNIT_TEST_FCUnorderedSet1
+            CDSUNIT_TEST_FCUnorderedSet2
+			CDSUNIT_TEST_FCUnorderedSet3
+			CDSUNIT_TEST_FCUnorderedSet4
 //            CDSUNIT_TEST_MichaelSet
 //            CDSUNIT_TEST_SplitList
 //            CDSUNIT_TEST_SkipListSet

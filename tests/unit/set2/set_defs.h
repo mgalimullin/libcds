@@ -30,10 +30,25 @@
 
 //********************************************************************
 // FCUnorderdSet
-#define CDSUNIT_DECLARE_FCUnorderedSet  \
-    TEST_CASE(tag_FCUnorderedSet, FCUnorderedSet_Int_BackOffStat)
-#define CDSUNIT_TEST_FCUnorderedSet  \
-    CPPUNIT_TEST(FCUnorderedSet_Int_BackOffStat)
+#define CDSUNIT_DECLARE_FCUnorderedSet1  \
+    TEST_CASE(tag_FCUnorderedSet, FCUnorderedSet_Int_BackOff)
+#define CDSUNIT_TEST_FCUnorderedSet1  \
+    CPPUNIT_TEST(FCUnorderedSet_Int_BackOff)
+
+#define CDSUNIT_DECLARE_FCUnorderedSet2  \
+    TEST_CASE(tag_FCUnorderedSet, FCUnorderedSet_Int_Bare)
+#define CDSUNIT_TEST_FCUnorderedSet2  \
+    CPPUNIT_TEST(FCUnorderedSet_Int_Bare)\
+
+#define CDSUNIT_DECLARE_FCUnorderedSet3  \
+    TEST_CASE(tag_FCUnorderedSet, FCUnorderedSet_Int_MMMCV)
+#define CDSUNIT_TEST_FCUnorderedSet3  \
+    CPPUNIT_TEST(FCUnorderedSet_Int_MMMCV)
+
+#define CDSUNIT_DECLARE_FCUnorderedSet4  \
+    TEST_CASE(tag_FCUnorderedSet, FCUnorderedSet_Int_OMOCV)
+#define CDSUNIT_TEST_FCUnorderedSet4  \
+    CPPUNIT_TEST(FCUnorderedSet_Int_OMOCV)
 
 //********************************************************************
 // StdSet
