@@ -36,44 +36,63 @@
 
 namespace set2 {
 
+#define array_size  100000
+	struct HeavyValue {
+		int    nNo;
+		static volatile int pop_buff[array_size];
 
-#define array_size  10000
-        struct HeavyValue {
-            int    nNo;
-            static int pop_buff[array_size];
+		HeavyValue() : nNo(0) {}
+		HeavyValue(int n) : nNo(n) {
+			for (int i = 0; i < array_size; ++i)
+				this->pop_buff[i] = static_cast<int>(std::sqrt(pop_buff[i]));
+		}
 
-            HeavyValue() : nNo(0) {}
-            HeavyValue(int n) : nNo(n) {}
+		HeavyValue(const HeavyValue &other):nNo(other.nNo){
+			for (int i = 0; i < array_size; ++i)
+				this->pop_buff[i] = static_cast<int>(std::sqrt(other.pop_buff[i]));
+		}
+		int getNo() const { return  nNo; }
 
-            HeavyValue(const HeavyValue &object):nNo(object.nNo){
-                for (int i = 0; i < array_size; ++i)
-                    this->pop_buff[i] = (int)std::sqrt(object.pop_buff[i]);
-            }
-            int getNo() const { return  nNo; }
+		bool operator<( const HeavyValue& other){
+			return nNo < other.nNo;
+		}
 
-            bool operator<( const HeavyValue& other){
-            	return nNo < other.nNo;
-            }
-
-        };
-        int HeavyValue::pop_buff[]= {};
+		bool operator==( const HeavyValue& other){
+			return nNo == other.nNo;
+		}
+	};
+	volatile int HeavyValue::pop_buff[]= {};
 #undef array_size
 
+	class HeavyValueHash {
+	public:
+	    size_t operator()(const HeavyValue &s) const
+	    {
+	    	return std::hash<int>()(s.nNo);
+	    }
+	};
+	class HeavyValueKeyEqualFn {
+	public:
+		bool operator()(const HeavyValue& t1, const HeavyValue& t2) const {
+			return (t1.nNo == t2.nNo);
+		}
+	};
 	template <typename T,
 			  template <class, class>  class WaitStrategy>
-    class FCUnorderedSet : public cc::FCUnorderedSet< T,  WaitStrategy>
+    class FCUnorderedSet : public cc::FCUnorderedSet< T,  WaitStrategy, HeavyValueHash, HeavyValueKeyEqualFn>
     {
-        typedef cc::FCUnorderedSet< T, WaitStrategy > base_class;
-    	public:
-        template <class Config>
-        FCUnorderedSet( Config const& cfg )
-            : base_class()
-        {}
+		typedef cc::FCUnorderedSet< T, WaitStrategy, HeavyValueHash, HeavyValueKeyEqualFn> base_class;
 
-        // for testing
-        static CDS_CONSTEXPR bool const c_bExtractSupported = true;
-        static CDS_CONSTEXPR bool const c_bLoadFactorDepended = true;
-        static CDS_CONSTEXPR bool const c_bEraseExactKey = false;
+	public:
+		template <class Config>
+		FCUnorderedSet( Config const& cfg )
+			: base_class()
+		{}
+
+		// for testing
+		static CDS_CONSTEXPR bool const c_bExtractSupported = true;
+		static CDS_CONSTEXPR bool const c_bLoadFactorDepended = true;
+		static CDS_CONSTEXPR bool const c_bEraseExactKey = false;
     };
 
     struct tag_FCUnorderedSet;
@@ -88,10 +107,10 @@ namespace set2 {
             using hash 		 = typename base_class::hash;
 
             // ***************************************************************************
-            using FCUnorderedSet_Int_BackOff = FCUnorderedSet<int, cds::algo::flat_combining::WaitBakkOffStrategy>;
-            using FCUnorderedSet_Int_Bare 	 = FCUnorderedSet<int, cds::algo::flat_combining::BareWaitStrategy>;
-            using FCUnorderedSet_Int_MMMCV 	 = FCUnorderedSet<int, cds::algo::flat_combining::WaitStrategyMultMutexMultCondVar>;
-            using FCUnorderedSet_Int_OMOCV 	 = FCUnorderedSet<int, cds::algo::flat_combining::WaitOneMutexOneCondVarStrategy>;
+            using FCUnorderedSet_HeavyValue_BackOff = FCUnorderedSet<HeavyValue, cds::algo::flat_combining::WaitBakkOffStrategy>;
+            using FCUnorderedSet_HeavyValue_Bare 	 = FCUnorderedSet<HeavyValue, cds::algo::flat_combining::BareWaitStrategy>;
+            using FCUnorderedSet_HeavyValue_MMMCV 	 = FCUnorderedSet<HeavyValue, cds::algo::flat_combining::WaitStrategyMultMutexMultCondVar>;
+            using FCUnorderedSet_HeavyValue_OMOCV 	 = FCUnorderedSet<HeavyValue, cds::algo::flat_combining::WaitOneMutexOneCondVarStrategy>;
 
         };
 
