@@ -30,6 +30,7 @@
 
 #include "set2/set_type.h"
 #include "cppunit/thread.h"
+#include <fstream>
 
 namespace set2 {
 
@@ -72,7 +73,7 @@ namespace set2 {
         template <class Set>
         class WorkThread: public CppUnitMini::TestThread
         {
-            Set&     m_Map;
+            Set&     m_Set;
 
             virtual WorkThread *    clone()
             {
@@ -87,13 +88,13 @@ namespace set2 {
             size_t  m_nFindFailed;
 
         public:
-            WorkThread( CppUnitMini::ThreadPool& pool, Set& rMap )
+            WorkThread( CppUnitMini::ThreadPool& pool, Set& rSet )
                 : CppUnitMini::TestThread( pool )
-                , m_Map( rMap )
+                , m_Set( rSet )
             {}
             WorkThread( WorkThread& src )
                 : CppUnitMini::TestThread( src )
-                , m_Map( src.m_Map )
+                , m_Set( src.m_Set )
             {}
 
             Set_InsDelFind&  getTest()
@@ -106,7 +107,7 @@ namespace set2 {
 
             virtual void test()
             {
-                Set& rMap = m_Map;
+                Set& rSet = m_Set;
 
                 m_nInsertSuccess =
                     m_nInsertFailed =
@@ -125,19 +126,19 @@ namespace set2 {
                     size_t n = nRand / nNormalize;
                     switch ( pAct[i] ) {
                     case do_find:
-                        if ( rMap.find( n ))
+                        if ( rSet.find( n ))
                             ++m_nFindSuccess;
                         else
                             ++m_nFindFailed;
                         break;
                     case do_insert:
-                        if ( rMap.insert( n ))
+                        if ( rSet.insert( n ))
                             ++m_nInsertSuccess;
                         else
                             ++m_nInsertFailed;
                         break;
                     case do_delete:
-                        if ( rMap.erase( n ))
+                        if ( rSet.erase( n ))
                             ++m_nDeleteSuccess;
                         else
                             ++m_nDeleteFailed;
@@ -155,6 +156,15 @@ namespace set2 {
         void do_test( Set& testSet )
         {
             typedef WorkThread<Set> work_thread;
+
+//          TODO: Only FC with HeavyValue
+            std::ifstream s;
+            s.open( "FCsize.conf" );
+            std::vector<int>::size_type FC_size;
+            s >> FC_size;
+            s.close();
+            Set::setValueSize ( FC_size );
+            CPPUNIT_MSG( "FC_size =" << FC_size);
 
             // fill map - only odd number
             {
@@ -226,6 +236,7 @@ namespace set2 {
                 << " delete=" << c_nDeletePercentage << '%'
                 << " duration=" << c_nDuration << "s"
                 );
+
 
             if ( Set::c_bLoadFactorDepended ) {
                 for ( c_nLoadFactor = 1; c_nLoadFactor <= c_nMaxLoadFactor; c_nLoadFactor *= 2 ) {

@@ -33,36 +33,32 @@
 
 #include "set2/set_type.h"
 #include <cds/container/fcunordered_set.h>
-
+#include <stdlib.h>
+#include <vector>
 namespace set2 {
 
-#define array_size  100000
 	struct HeavyValue {
 		int    nNo;
-		static volatile int pop_buff[array_size];
+		static std::vector<int> buff;
+		static std::vector<int>::size_type array_size;
 
 		HeavyValue() : nNo(0) {}
 		HeavyValue(int n) : nNo(n) {
-			for (int i = 0; i < array_size; ++i)
-				this->pop_buff[i] = static_cast<int>(std::sqrt(pop_buff[i]));
 		}
 
 		HeavyValue(const HeavyValue &other):nNo(other.nNo){
-			for (int i = 0; i < array_size; ++i)
-				this->pop_buff[i] = static_cast<int>(std::sqrt(other.pop_buff[i]));
+			for(decltype(array_size) i = 0; i < array_size; ++i)
+				buff[i] = static_cast<int>( std::sqrt( static_cast<float>( buff[i] ) ) );
 		}
 		int getNo() const { return  nNo; }
 
-		bool operator<( const HeavyValue& other){
-			return nNo < other.nNo;
-		}
-
-		bool operator==( const HeavyValue& other){
-			return nNo == other.nNo;
+		static void setArraySize(decltype(array_size) new_size){
+			array_size = new_size;
+			buff.resize(array_size, rand());
 		}
 	};
-	volatile int HeavyValue::pop_buff[]= {};
-#undef array_size
+	std::vector<int> HeavyValue::buff = {1, 2, 3, 4,5,6,7,8,9,0};
+	std::vector<int>::size_type HeavyValue::array_size = 10;
 
 	class HeavyValueHash {
 	public:
@@ -77,11 +73,12 @@ namespace set2 {
 			return (t1.nNo == t2.nNo);
 		}
 	};
-	template <typename T,
-			  template <class, class>  class WaitStrategy>
+	template <typename T, template <class, class>  class WaitStrategy>
     class FCUnorderedSet : public cc::FCUnorderedSet< T,  WaitStrategy, HeavyValueHash, HeavyValueKeyEqualFn>
+//	class FCUnorderedSet : public cc::FCUnorderedSet< T,  WaitStrategy>
     {
 		typedef cc::FCUnorderedSet< T, WaitStrategy, HeavyValueHash, HeavyValueKeyEqualFn> base_class;
+//		typedef cc::FCUnorderedSet< T, WaitStrategy> base_class;
 
 	public:
 		template <class Config>
@@ -89,8 +86,14 @@ namespace set2 {
 			: base_class()
 		{}
 
+//		TODO:: This metod work only for HeavyValue
+//		       This method exists for testing the depending speed FC
+//		       on the vector element size.
+		static void setValueSize(std::vector<int>::size_type new_size){
+		    HeavyValue::setArraySize(new_size);
+		}
 		// for testing
-		static CDS_CONSTEXPR bool const c_bExtractSupported = true;
+		static CDS_CONSTEXPR bool const c_bExtractSupported   = true;
 		static CDS_CONSTEXPR bool const c_bLoadFactorDepended = true;
 		static CDS_CONSTEXPR bool const c_bEraseExactKey = false;
     };
@@ -107,10 +110,19 @@ namespace set2 {
             using hash 		 = typename base_class::hash;
 
             // ***************************************************************************
-            using FCUnorderedSet_HeavyValue_BackOff = FCUnorderedSet<HeavyValue, cds::algo::flat_combining::WaitBakkOffStrategy>;
-            using FCUnorderedSet_HeavyValue_Bare 	 = FCUnorderedSet<HeavyValue, cds::algo::flat_combining::BareWaitStrategy>;
-            using FCUnorderedSet_HeavyValue_MMMCV 	 = FCUnorderedSet<HeavyValue, cds::algo::flat_combining::WaitStrategyMultMutexMultCondVar>;
-            using FCUnorderedSet_HeavyValue_OMOCV 	 = FCUnorderedSet<HeavyValue, cds::algo::flat_combining::WaitOneMutexOneCondVarStrategy>;
+//            using FCUnorderedSet_HeavyValue_BackOff = FCUnorderedSet<int, cds::algo::flat_combining::WaitBakkOffStrategy>;
+//            using FCUnorderedSet_HeavyValue_Bare 	 = FCUnorderedSet<int, cds::algo::flat_combining::BareWaitStrategy>;
+//            using FCUnorderedSet_HeavyValue_MMMCV 	 = FCUnorderedSet<int, cds::algo::flat_combining::WaitStrategyMultMutexMultCondVar>;
+//            using FCUnorderedSet_HeavyValue_OMOCV 	 = FCUnorderedSet<int, cds::algo::flat_combining::WaitOneMutexOneCondVarStrategy>;
+
+            using FCUnorderedSet_HeavyValue_BackOff
+            		= FCUnorderedSet<HeavyValue, cds::algo::flat_combining::WaitBakkOffStrategy>;
+			using FCUnorderedSet_HeavyValue_Bare
+					= FCUnorderedSet<HeavyValue, cds::algo::flat_combining::BareWaitStrategy>;
+			using FCUnorderedSet_HeavyValue_MMMCV
+					= FCUnorderedSet<HeavyValue, cds::algo::flat_combining::WaitStrategyMultMutexMultCondVar>;
+			using FCUnorderedSet_HeavyValue_OMOCV
+					= FCUnorderedSet<HeavyValue, cds::algo::flat_combining::WaitOneMutexOneCondVarStrategy>;
 
         };
 
