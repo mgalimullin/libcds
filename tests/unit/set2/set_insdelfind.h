@@ -239,13 +239,13 @@ namespace set2 {
 
 
             if ( Set::c_bLoadFactorDepended ) {
-                for ( c_nLoadFactor = 1; c_nLoadFactor <= c_nMaxLoadFactor; c_nLoadFactor *= 2 ) {
-                    CPPUNIT_MSG("  LoadFactor = " << c_nLoadFactor );
-                    Set s( *this );
-                    do_test( s );
-                    if ( c_bPrintGCState )
-                        print_gc_state();
-                }
+//                for ( c_nLoadFactor = 1; c_nLoadFactor <= c_nMaxLoadFactor; c_nLoadFactor *= 2 ) {
+                CPPUNIT_MSG("  LoadFactor = " << c_nLoadFactor );
+                Set s( *this );
+                do_test( s );
+                if ( c_bPrintGCState )
+                    print_gc_state();
+//                }
             }
             else {
                 Set s( *this );
@@ -258,10 +258,7 @@ namespace set2 {
         void setUpParams( const CppUnitMini::TestCfg& cfg );
 
 #   include "set2/set_defs.h"
-        CDSUNIT_DECLARE_FCUnorderedSet1
-        CDSUNIT_DECLARE_FCUnorderedSet2
-        CDSUNIT_DECLARE_FCUnorderedSet3
-        CDSUNIT_DECLARE_FCUnorderedSet4
+        CDSUNIT_DECLARE_FCUnorderedSet_BackOff
 //        CDSUNIT_DECLARE_MichaelSet
 //        CDSUNIT_DECLARE_SplitList
 //        CDSUNIT_DECLARE_StripedSet
@@ -273,10 +270,7 @@ namespace set2 {
 //        CDSUNIT_DECLARE_StdSet
 
         CPPUNIT_TEST_SUITE_(Set_InsDelFind, "Set_InsDelFind")
-        	CDSUNIT_TEST_FCUnorderedSet1
-            CDSUNIT_TEST_FCUnorderedSet2
-			CDSUNIT_TEST_FCUnorderedSet3
-			CDSUNIT_TEST_FCUnorderedSet4
+			CDSUNIT_TEST_FCUnorderedSet_BackOff
 //            CDSUNIT_TEST_MichaelSet
 //            CDSUNIT_TEST_SplitList
 //            CDSUNIT_TEST_SkipListSet

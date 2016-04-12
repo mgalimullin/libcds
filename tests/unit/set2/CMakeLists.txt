@@ -18,8 +18,8 @@ set(CDSUNIT_SET_SOURCES
 #    set_insdel_string_split.cpp
 #    set_insdel_string_striped.cpp
 #    set_insdel_string_std.cpp
-	set_insdelfind_fcunordered_set.cpp
-    set_insdelfind.cpp
+#    set_insdelfind_fcunordered_set.cpp
+#    set_insdelfind.cpp
 #    set_insdelfind_cuckoo.cpp
 #    set_insdelfind_ellentree.cpp
 #    set_insdelfind_michael.cpp
@@ -36,7 +36,51 @@ set(CDSUNIT_SET_SOURCES
 #    set_delodd_skip.cpp
 #    set_delodd_split.cpp
 )
-
-add_executable(${PACKAGE_NAME} ${CDSUNIT_SET_SOURCES} $<TARGET_OBJECTS:${TEST_COMMON}>)
-target_link_libraries(${PACKAGE_NAME} ${CDS_SHARED_LIBRARY} ${Boost_THREAD_LIBRARY} ${Boost_SYSTEM_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
-add_test(NAME ${PACKAGE_NAME} COMMAND ${PACKAGE_NAME} WORKING_DIRECTORY ${EXECUTABLE_OUTPUT_PATH})
+add_executable(${PACKAGE_NAME}_BackOff set_insdelfind_fcunordered_set_BackOff.cpp 
+                                       set_insdelfind_BackOff.cpp 
+                                       $<TARGET_OBJECTS:${TEST_COMMON}>)
+target_link_libraries(${PACKAGE_NAME}_BackOff ${CDS_SHARED_LIBRARY} 
+                                              ${Boost_THREAD_LIBRARY} 
+                                              ${Boost_SYSTEM_LIBRARY} 
+                                              ${CMAKE_THREAD_LIBS_INIT})
+                                              
+add_executable(${PACKAGE_NAME}_Bare set_insdelfind_fcunordered_set_Bare.cpp 
+                                       set_insdelfind_Bare.cpp 
+                                       $<TARGET_OBJECTS:${TEST_COMMON}>)
+target_link_libraries(${PACKAGE_NAME}_Bare ${CDS_SHARED_LIBRARY} 
+                                              ${Boost_THREAD_LIBRARY} 
+                                              ${Boost_SYSTEM_LIBRARY} 
+                                              ${CMAKE_THREAD_LIBS_INIT})
+                                              
+add_executable(${PACKAGE_NAME}_MMMC set_insdelfind_fcunordered_set_MMMC.cpp 
+                                       set_insdelfind_MMMC.cpp 
+                                       $<TARGET_OBJECTS:${TEST_COMMON}>)
+target_link_libraries(${PACKAGE_NAME}_MMMC ${CDS_SHARED_LIBRARY} 
+                                              ${Boost_THREAD_LIBRARY} 
+                                              ${Boost_SYSTEM_LIBRARY} 
+                                              ${CMAKE_THREAD_LIBS_INIT})
+                                              
+add_executable(${PACKAGE_NAME}_OMOCV set_insdelfind_fcunordered_set_OMOCV.cpp 
+                                       set_insdelfind_OMOCV.cpp 
+                                       $<TARGET_OBJECTS:${TEST_COMMON}>)
+target_link_libraries(${PACKAGE_NAME}_OMOCV ${CDS_SHARED_LIBRARY} 
+                                              ${Boost_THREAD_LIBRARY} 
+                                              ${Boost_SYSTEM_LIBRARY} 
+                                              ${CMAKE_THREAD_LIBS_INIT})
+                                              
+                                              
+                                              
+                                              
+                                              
+                                              
+                                              
+                                              
+                                              
+                                              
+                                              
+                                              
+                                              
+                                              
+                                              
+                                              
+                                              

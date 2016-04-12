@@ -4,7 +4,7 @@ cmake_policy(SET CMP0016 NEW)
 project(cds)
 
 set(PROJECT_VERSION 2.1.0)
-
+set( CMAKE_DEBUG_POSTFIX "_d" )
 # Options
 option(WITH_TESTS "Build unit tests" OFF)
 option(WITH_TESTS_COVERAGE "Analyze test coverage using gcov (only for gcc)" OFF)
@@ -24,8 +24,8 @@ endif(WITH_BOOST_ATOMIC)
 
 if(WITH_TESTS_COVERAGE)
   if(CMAKE_COMPILER_IS_GNUCXX)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fprofile-arcs -ftest-coverage")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fprofile-arcs -ftest-coverage -g -O0")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage -g -O0")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
     message(STATUS "Test coverage analysis: activated")
   else()

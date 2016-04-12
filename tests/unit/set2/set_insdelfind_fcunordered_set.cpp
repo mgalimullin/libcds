@@ -28,7 +28,7 @@
     OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.     
 */
 
-#include "set2/set_insdelfind.h"
+#include "set2/set_insdelfind_BackOff.h"
 #include "set2/set_type_fcunordered_set.h"
 
 #undef TEST_CASE
@@ -36,8 +36,5 @@
 #include "set2/set_defs.h"
 
 namespace set2 {
-	CDSUNIT_DECLARE_FCUnorderedSet1
-	CDSUNIT_DECLARE_FCUnorderedSet2
-	CDSUNIT_DECLARE_FCUnorderedSet3
-	CDSUNIT_DECLARE_FCUnorderedSet4
+	CDSUNIT_DECLARE_FCUnorderedSet_BackOff
 } // namespace set2
