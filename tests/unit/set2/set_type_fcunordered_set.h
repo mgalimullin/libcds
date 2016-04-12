@@ -120,9 +120,9 @@ namespace set2 {
 			using FCUnorderedSet_HeavyValue_Bare
 					= FCUnorderedSet<HeavyValue, cds::algo::flat_combining::BareWaitStrategy>;
 			using FCUnorderedSet_HeavyValue_MMMCV
-					= FCUnorderedSet<HeavyValue, cds::algo::flat_combining::WaitStrategyMultMutexMultCondVar>;
+					= FCUnorderedSet<HeavyValue, cds::algo::flat_combining::TimedWaitMultMutexMultCondVar>;
 			using FCUnorderedSet_HeavyValue_OMOCV
-					= FCUnorderedSet<HeavyValue, cds::algo::flat_combining::WaitOneMutexOneCondVarStrategy>;
+					= FCUnorderedSet<HeavyValue, cds::algo::flat_combining::TimedWaitGlobalMutexAndCondVar>;
 
         };
 

@@ -135,7 +135,7 @@ namespace cds {  namespace algo {  namespace flat_combining {
         void wait(ExtendedPublicationRecord * pRec){
             boost::unique_lock<boost::mutex> lock(pRec->_waitMutex);
             if (pRec->nRequest.load( Traits::memory_model::memory_order_acquire ) >= req_Operation)
-                pRec->_condVar.timed_wait(lock, boost::posix_time::millisec(2));
+                pRec->_condVar.timed_wait(lock, boost::posix_time::millisec(30));
         }
 
         void notify(ExtendedPublicationRecord* pRec){
@@ -156,7 +156,7 @@ namespace cds {  namespace algo {  namespace flat_combining {
         void wait(ExtendedPublicationRecord * pRec){
             boost::unique_lock<boost::mutex> lock(_globalMutex);
             if (pRec->nRequest.load( Traits::memory_model::memory_order_acquire ) >= req_Operation)
-                _globalCondVar.timed_wait(lock, boost::posix_time::millisec(2));
+                _globalCondVar.timed_wait(lock, boost::posix_time::millisec(30));
         }
 
         void notify(ExtendedPublicationRecord* pRec){
