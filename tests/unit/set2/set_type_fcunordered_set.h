@@ -74,11 +74,11 @@ namespace set2 {
 		}
 	};
 	template <typename T, template <class, class>  class WaitStrategy>
-//    class FCUnorderedSet : public cc::FCUnorderedSet< T,  WaitStrategy, HeavyValueHash, HeavyValueKeyEqualFn>
-	class FCUnorderedSet : public cc::FCUnorderedSet< T,  WaitStrategy>
+    class FCUnorderedSet : public cc::FCUnorderedSet< T,  WaitStrategy, HeavyValueHash, HeavyValueKeyEqualFn>
+//	class FCUnorderedSet : public cc::FCUnorderedSet< T,  WaitStrategy>
     {
-//		typedef cc::FCUnorderedSet< T, WaitStrategy, HeavyValueHash, HeavyValueKeyEqualFn> base_class;
-		typedef cc::FCUnorderedSet< T, WaitStrategy> base_class;
+		typedef cc::FCUnorderedSet< T, WaitStrategy, HeavyValueHash, HeavyValueKeyEqualFn> base_class;
+//		typedef cc::FCUnorderedSet< T, WaitStrategy> base_class;
 
 	public:
 		template <class Config>
@@ -112,15 +112,15 @@ namespace set2 {
             // ***************************************************************************
             using FCUnorderedSet_HeavyValue_BackOff = FCUnorderedSet<int, cds::algo::flat_combining::WaitBakkOffStrategy>;
             using FCUnorderedSet_HeavyValue_Bare    = FCUnorderedSet<int, cds::algo::flat_combining::BareWaitStrategy>;
-            using FCUnorderedSet_HeavyValue_MMMCV   = FCUnorderedSet<int, cds::algo::flat_combining::WaitStrategyMultMutexMultCondVar>;
+//            using FCUnorderedSet_HeavyValue_MMMCV   = FCUnorderedSet<int, cds::algo::flat_combining::WaitStrategyMultMutexMultCondVar>;
             using FCUnorderedSet_HeavyValue_OMOCV   = FCUnorderedSet<int, cds::algo::flat_combining::WaitOneMutexOneCondVarStrategy>;
 
 //            using FCUnorderedSet_HeavyValue_BackOff
 //            		= FCUnorderedSet<HeavyValue, cds::algo::flat_combining::WaitBakkOffStrategy>;
 //			using FCUnorderedSet_HeavyValue_Bare
 //					= FCUnorderedSet<HeavyValue, cds::algo::flat_combining::BareWaitStrategy>;
-//			using FCUnorderedSet_HeavyValue_MMMCV
-//					= FCUnorderedSet<HeavyValue, cds::algo::flat_combining::TimedWaitMultMutexMultCondVar>;
+			using FCUnorderedSet_HeavyValue_MMMCV
+					= FCUnorderedSet<HeavyValue, cds::algo::flat_combining::TimedWaitMultMutexMultCondVar>;
 //			using FCUnorderedSet_HeavyValue_OMOCV
 //					= FCUnorderedSet<HeavyValue, cds::algo::flat_combining::TimedWaitGlobalMutexAndCondVar>;
 
