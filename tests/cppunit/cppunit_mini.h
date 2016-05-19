@@ -102,17 +102,29 @@ namespace CppUnitMini
       }
 
       template <typename T>
-      T get( const char * pszParamName, T defVal ) const
-      {
+      T get( const char * pszParamName, T defVal ) const{
           return get( std::string( pszParamName ), defVal );
       }
 
-      int getInt( const char * pszParamName, int nDefVal = 0 ) const { return get( pszParamName, nDefVal ) ; }
-      unsigned int getUInt( const char * pszParamName, unsigned int nDefVal = 0 ) const { return get( pszParamName, nDefVal ) ; }
-      long getLong( const char * pszParamName, long nDefVal = 0 ) const { return get( pszParamName, nDefVal ) ; }
-      unsigned long getULong( const char * pszParamName, unsigned long nDefVal = 0 ) const { return get( pszParamName, nDefVal ) ; }
+      int getInt( const char * pszParamName, int nDefVal = 0 ) const {
+          return get( pszParamName, nDefVal ) ;
+      }
+
+      unsigned int getUInt( const char * pszParamName, unsigned int nDefVal = 0 ) const {
+          return get( pszParamName, nDefVal ) ;
+      }
+
+      long getLong( const char * pszParamName, long nDefVal = 0 ) const {
+          return get( pszParamName, nDefVal ) ;
+      }
+
+      unsigned long getULong( const char * pszParamName, unsigned long nDefVal = 0 ) const {
+          return get( pszParamName, nDefVal ) ;
+      }
+
       size_t getSizeT( const char * pszParamName, size_t nDefVal = 0 ) const
       {
+//          std::cout<<"\n\tHello; size_t getSizeT(...) \n";
           return static_cast<size_t>( getULong( pszParamName, static_cast<unsigned long>(nDefVal)));
       }
 
@@ -169,9 +181,15 @@ namespace CppUnitMini
         registerTestCase(this);
     }
 
-    void setUp() { m_failed = false; }
+    void setUp() {
+        m_failed = false;
+    }
+
     static int run(Reporter *in_reporter = 0, const char *in_testName = "", bool invert = false);
-    int numErrors() { return m_numErrors; }
+    int numErrors() {
+        return m_numErrors;
+    }
+
     static void registerTestCase(TestCase *in_testCase);
 
     static TestCase * current_test()

@@ -54,7 +54,7 @@ namespace cds {  namespace algo {  namespace flat_combining {
         }
 
         void notify(ExtendedPublicationRecord* pRec){
-            boost::unique_lock<boost::mutex> lock(pRec->_waitMutex);
+//            boost::unique_lock<boost::mutex> lock(pRec->_waitMutex);
             pRec->nRequest.store( req_Response, Traits::memory_model::memory_order_release);
             pRec->_condVar.notify_one();
         }
