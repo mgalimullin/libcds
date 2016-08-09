@@ -76,6 +76,7 @@ set(SOURCES src/hp_gc.cpp
 
 add_library(${CDS_SHARED_LIBRARY} SHARED ${SOURCES})
 add_library(${CDS_STATIC_LIBRARY} STATIC ${SOURCES})
+set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX "_d")
 target_link_libraries(${CDS_SHARED_LIBRARY} PRIVATE ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(${CDS_STATIC_LIBRARY} PRIVATE ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
