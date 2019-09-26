@@ -1,5 +1,6 @@
 CDS C++ library
-===============
+=============== 
+
 [![GitHub version](https://badge.fury.io/gh/khizmax%2Flibcds.svg)](http://badge.fury.io/gh/khizmax%2Flibcds)
 [![License](https://img.shields.io/:license-boost-blue.svg?style=round-square)](https://github.com/khizmax/libcds/blob/master/LICENSE)
 [![Build Status](https://travis-ci.org/khizmax/libcds.svg?branch=dev)](https://travis-ci.org/khizmax/libcds)
